@@ -1,0 +1,6 @@
+@OrganizeMe.API_HostAddress = http://localhost:5009
+
+GET {{OrganizeMe.API_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###

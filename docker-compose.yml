@@ -1,0 +1,6 @@
+﻿services:
+  organizeme.api:
+    image: organizeme.api
+    build:
+      context: .
+      dockerfile: OrganizeMe.API/Dockerfile
