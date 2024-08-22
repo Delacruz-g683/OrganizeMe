@@ -26,12 +26,6 @@ builder.Services.AddScoped<ITodoRepository, TodoRepository>();
 
 builder.Services.AddAutoMapper(typeof(AutoMapperProfiles).Assembly);
 
-builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
-    {
-        options.ClaimsIdentity.UserIdClaimType = ClaimTypes.NameIdentifier;
-    })
-    .AddDefaultTokenProviders();
-
 builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
     .AddJwtBearer(options =>
     {
