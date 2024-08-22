@@ -2,7 +2,7 @@ namespace OrganizeMe.API.Models.Dto;
 
 public class TodoItemDto
 {
-    public string? Description { get; set; }
+    public required string? Description { get; set; }
     public DateTime CreatedDate { get; set; }
     public bool IsCompleted { get; set; }
     public DateTime? CompletedDate { get; set; }
