@@ -11,7 +11,7 @@ namespace OrganizeMe.API.Controllers;
 [ApiController]
 public class TodoController : ControllerBase
 {
-     private readonly ITodoRepository _todoRepository;
+    private readonly ITodoRepository _todoRepository;
     private readonly IMapper _mapper;
 
     public TodoController(ITodoRepository todoRepository, IMapper mapper)
@@ -40,6 +40,17 @@ public class TodoController : ControllerBase
         var todoToReturn = _mapper.Map<TodoItemDto>(todo);
         return Ok(todoToReturn);
     }
+    
+    [HttpGet]
+    [Route("get-deleted-todos")]
+    public async Task<IActionResult> GetDeletedTodoItem()
+    {
+        var userId = new Guid(User.FindFirst(ClaimTypes.NameIdentifier).Value);
+        var todos = await _todoRepository.GetDeletedTodoItem(userId);
+        var todosToReturn = _mapper.Map<IEnumerable<TodoItemDto>>(todos);
+
+        return Ok(todosToReturn);
+    }
 
     [HttpPost]
     public async Task<IActionResult> CreateTodoItem(TodoItemDto todoItemDto)
@@ -52,22 +63,45 @@ public class TodoController : ControllerBase
         var todoItem = _mapper.Map<TodoItem>(todoItemDto);
         todoItem.UserId = userId;
 
+        todoItem.CreatedDate = DateTime.Now;
+        
         var createdTodoItem = await _todoRepository.AddTodoItem(todoItem);
         var todoToReturn = _mapper.Map<TodoItemDto>(createdTodoItem);
 
-        return CreatedAtRoute("GetTodoItem", new { itemId = createdTodoItem.ItemId }, todoToReturn);
+        return CreatedAtRoute("GetTodoItem", new { itemId = createdTodoItem.itemId }, todoToReturn);
     }
 
 
     [HttpPut("{itemId}")]
-    public async Task<IActionResult> UpdateTodoItem(Guid itemId, TodoItemDto todoItemForUpdateDto)
+    public async Task<IActionResult> UpdateTodoItem(Guid itemId, TodoItemDto todoItemDto)
     {
         var todoItemFromRepo = await _todoRepository.GetTodoItem(itemId);
         if (todoItemFromRepo == null)
             return NotFound();
 
-        _mapper.Map(todoItemForUpdateDto, todoItemFromRepo);
+        _mapper.Map(todoItemDto, todoItemFromRepo);
+        
+        todoItemFromRepo.CompletedDate = DateTime.Now;
 
+        if (await _todoRepository.SaveAll())
+            return NoContent();
+
+        throw new Exception($"Updating item {itemId} failed on save");
+    }
+    
+    [HttpPut]
+    [Route("undo-deleted-todo/{itemId}")]
+    public async Task<IActionResult> UndoDeletedTodo(Guid itemId, TodoItemDto todoItemDto)
+    {
+        var todoItemFromRepo = await _todoRepository.UndoDeletedTdo(itemId);
+        if (todoItemFromRepo == null)
+            return NotFound();
+
+        _mapper.Map(todoItemDto, todoItemFromRepo);
+
+        todoItemFromRepo.DeletedDate = null;
+        todoItemFromRepo.IsDeleted = false;
+        
         if (await _todoRepository.SaveAll())
             return NoContent();
 

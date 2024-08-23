@@ -2,6 +2,7 @@ namespace OrganizeMe.API.Models.Dto;
 
 public class TodoItemDto
 {
+    public Guid itemId { get; set; }
     public required string? Description { get; set; }
     public DateTime CreatedDate { get; set; }
     public bool IsCompleted { get; set; }

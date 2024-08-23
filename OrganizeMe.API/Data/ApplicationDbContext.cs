@@ -23,7 +23,7 @@ public class ApplicationDbContext : DbContext
             .OnDelete(DeleteBehavior.Cascade); 
         
         modelBuilder.Entity<TodoItem>()
-            .HasKey(t => t.ItemId); 
+            .HasKey(t => t.itemId); 
 
         base.OnModelCreating(modelBuilder);
     }
