@@ -46,16 +46,6 @@ public class TodoRepository(ApplicationDbContext context) : ITodoRepository
         if (todoItem == null)
             return false;
 
-        context.TodoItems.Remove(todoItem);
-        return await SaveAll();
-    }
-    
-    public async Task<bool> RemoveTodoItem(Guid itemId)
-    {
-        var todoItem = await context.TodoItems.FirstOrDefaultAsync(t => t.itemId == itemId);
-        if (todoItem == null)
-            return false;
-
         todoItem.IsDeleted = true;
         todoItem.DeletedDate = DateTime.Now;
         
